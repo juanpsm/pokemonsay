@@ -4,4 +4,4 @@
 # Call pokemonsay with the think option.
 #
 
-pokemonsay.sh --think $@
+"$(dirname "$0")/pokemonsay.sh" --think "$@"
