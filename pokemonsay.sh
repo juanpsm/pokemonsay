@@ -4,7 +4,7 @@ usage() {
 	echo
 	echo "  Description: Pokemonsay makes a pokémon say something to you."
 	echo
-	echo "  Usage: $(basename $0) [-p POKEMON_NAME] [-f COW_FILE] [-W COLUMN] [-l] [-n] [-N] [-t] [-h] [MESSAGE]"
+	echo "  Usage: $(basename "$0") [-p POKEMON_NAME] [-f COW_FILE] [-W COLUMN] [-l] [-n] [-N] [-t] [-h] [MESSAGE]"
 	echo
 	echo "  Options:"
 	echo "    -p, --pokemon POKEMON_NAME"
@@ -154,8 +154,10 @@ fi
 # cowsay -n only reads the message from stdin.
 if [ "$word_wrap" = "-n" ] && [ -n "$MESSAGE" ]; then
 	echo "$MESSAGE" | $cow_cmd -f "$pokemon_cow" -n
+elif [ -n "$MESSAGE" ]; then
+	$cow_cmd -f "$pokemon_cow" $word_wrap "$MESSAGE"
 else
-	$cow_cmd -f "$pokemon_cow" $word_wrap $MESSAGE
+	$cow_cmd -f "$pokemon_cow" $word_wrap
 fi
 
 # Write the pokemon name, unless requested otherwise.
