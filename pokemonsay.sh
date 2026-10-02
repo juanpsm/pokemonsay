@@ -32,7 +32,7 @@ pokemon_path="$(pwd)/cows"
 list_pokemon() {
 	echo "Pokémon available in '$pokemon_path/':"
 	echo
-	all_pokemon="$(find $pokemon_path -name "*.cow" | sort)"
+	all_pokemon="$(find "$pokemon_path" -name "*.cow" | sort)"
 	echo "$all_pokemon" | while read pokemon; do
 		pokemon="${pokemon##*/}"
 		pokemon="${pokemon%.cow}"
