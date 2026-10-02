@@ -107,7 +107,7 @@ if [ -n "$WORD_WRAP" ]; then
 fi
 
 # Support MacOS 
-if [ "$(uname)" == 'Darwin' ]; then
+if [ "$(uname)" = 'Darwin' ]; then
   SHUF=gshuf
 else
   SHUF=shuf
