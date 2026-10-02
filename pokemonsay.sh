@@ -4,7 +4,7 @@ usage() {
 	echo
 	echo "  Description: Pokemonsay makes a pokémon say something to you."
 	echo
-	echo "  Usage: $(basename $0) [-p POKEMON_NAME] [-f COW_FILE] [-w COLUMN] [-l] [-n] [-t] [-h] [MESSAGE]"
+	echo "  Usage: $(basename $0) [-p POKEMON_NAME] [-f COW_FILE] [-W COLUMN] [-l] [-n] [-N] [-t] [-h] [MESSAGE]"
 	echo
 	echo "  Options:"
 	echo "    -p, --pokemon POKEMON_NAME"
@@ -79,7 +79,7 @@ case $key in
 	-l|--list)
 		list_pokemon
 		;;
-	-n|--no-name)
+	-N|--no-name)
 		DISPLAY_NAME="NO"
 		shift
 		;;
@@ -109,7 +109,7 @@ done
 
 # Disable wrapping if the option is set, otherwise
 # define where to wrap the message.
-if [ -n "{DISABLE_WRAP:-}" == "YES" ]; then
+if [ "${DISABLE_WRAP:-}" = "YES" ]; then
 	word_wrap="-n"
 elif [ -n "$WORD_WRAP" ]; then
 	word_wrap="-W $WORD_WRAP"
