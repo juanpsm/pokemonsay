@@ -20,26 +20,18 @@ cp ./pokemonthink.sh "$install_path/"
 cat > "$bin_path/$pokemonsay_bin" <<- EOF
 	#!/bin/sh
 
-	# This script changes to the pokemonsay installation directory,
-	# runs the main script for running the pokemonsay, and changes
-	# back to the previous directory.
+	# Runs pokemonsay from its installation directory.
 
-	cd "$install_path/"
-	./pokemonsay.sh "\$@"
-	cd - >/dev/null
+	exec "$install_path/pokemonsay.sh" "\$@"
 EOF
 
 # Create the pokemonthink script in the home bin directory.
 cat > "$bin_path/$pokemonthink_bin" <<- EOF
 	#!/bin/sh
 
-	# This script changes to the pokemonsay installation directory,
-	# runs the main script for running the pokemonthink, and changes
-	# back to the previous directory.
+	# Runs pokemonthink from its installation directory.
 
-	cd "$install_path/"
-	./pokemonthink.sh "\$@"
-	cd - >/dev/null
+	exec "$install_path/pokemonthink.sh" "\$@"
 EOF
 
 # Create uninstall script in the install directory
