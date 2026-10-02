@@ -130,9 +130,15 @@ pokemon_name="${filename%.*}"
 
 # Call cowsay or cowthink.
 if [ -n "$THINK" ]; then
-	cowthink -f "$pokemon_cow" $word_wrap $MESSAGE
+	cow_cmd=cowthink
 else
-	cowsay -f "$pokemon_cow" $word_wrap $MESSAGE
+	cow_cmd=cowsay
+fi
+# cowsay -n only reads the message from stdin.
+if [ "$word_wrap" = "-n" ] && [ -n "$MESSAGE" ]; then
+	echo "$MESSAGE" | $cow_cmd -f "$pokemon_cow" -n
+else
+	$cow_cmd -f "$pokemon_cow" $word_wrap $MESSAGE
 fi
 
 # Write the pokemon name, unless requested otherwise.
