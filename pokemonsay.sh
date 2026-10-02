@@ -27,7 +27,17 @@ usage() {
 }
 
 # Where the pokemon are.
-pokemon_path="$(dirname "$(readlink -f "$0")")/cows"
+# Resolve the real script directory, following symlinks (portable: no readlink -f).
+script="$0"
+while [ -L "$script" ]; do
+	link="$(readlink "$script")"
+	case "$link" in
+		/*) script="$link" ;;
+		*) script="$(dirname "$script")/$link" ;;
+	esac
+done
+script_dir="$(cd "$(dirname "$script")" && pwd)"
+pokemon_path="$script_dir/cows"
 
 list_pokemon() {
 	echo "Pokémon available in '$pokemon_path/':"
