@@ -4,7 +4,7 @@ usage() {
 	echo
 	echo "  Description: Pokemonsay makes a pokémon say something to you."
 	echo
-	echo "  Usage: $(basename $0) [-p POKEMON_NAME] [-f COW_FILE] [-W COLUMN] [-l] [-n] [-N] [-t] [-h] [MESSAGE]"
+	echo "  Usage: $(basename "$0") [-p POKEMON_NAME] [-f COW_FILE] [-W COLUMN] [-l] [-n] [-N] [-t] [-h] [MESSAGE]"
 	echo
 	echo "  Options:"
 	echo "    -p, --pokemon POKEMON_NAME"
@@ -44,10 +44,10 @@ pokemon_path="$script_dir/cows"
 list_pokemon() {
 	echo "Pokémon available in '$pokemon_path/':"
 	echo
-	all_pokemon="$(find $pokemon_path -name "*.cow" | sort)"
+	all_pokemon="$(find "$pokemon_path" -name "*.cow" | sort)"
 	echo "$all_pokemon" | while read pokemon; do
-		pokemon=${pokemon##*/}
-		pokemon=${pokemon%.cow}
+		pokemon="${pokemon##*/}"
+		pokemon="${pokemon%.cow}"
 		printf "%-8s\n" "${pokemon}"
 	done | column -x
 	exit 0
@@ -134,15 +134,15 @@ fi
 
 # Define which pokemon should be displayed.
 if [ -n "$POKEMON_NAME" ]; then
-	pokemon_cow=$(find $pokemon_path -name "$POKEMON_NAME.cow")
+	pokemon_cow="$(find "$pokemon_path" -name "$POKEMON_NAME.cow")"
 elif [ -n "$COW_FILE" ]; then
 	pokemon_cow="$COW_FILE"
 else
-	pokemon_cow=$(find $pokemon_path -name "*.cow" | $SHUF -n1)
+	pokemon_cow="$(find "$pokemon_path" -name "*.cow" | $SHUF -n1)"
 fi
 
 # Get the pokemon name.
-filename=$(basename "$pokemon_cow")
+filename="$(basename "$pokemon_cow")"
 pokemon_name="${filename%.*}"
 
 # Call cowsay or cowthink.
@@ -154,11 +154,13 @@ fi
 # cowsay -n only reads the message from stdin.
 if [ "$word_wrap" = "-n" ] && [ -n "$MESSAGE" ]; then
 	echo "$MESSAGE" | $cow_cmd -f "$pokemon_cow" -n
+elif [ -n "$MESSAGE" ]; then
+	$cow_cmd -f "$pokemon_cow" $word_wrap "$MESSAGE"
 else
-	$cow_cmd -f "$pokemon_cow" $word_wrap $MESSAGE
+	$cow_cmd -f "$pokemon_cow" $word_wrap
 fi
 
 # Write the pokemon name, unless requested otherwise.
 if [ -z "$DISPLAY_NAME" ]; then
-	echo $pokemon_name
+	echo "$pokemon_name"
 fi

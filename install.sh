@@ -7,43 +7,43 @@ pokemonsay_bin="pokemonsay"
 pokemonthink_bin="pokemonthink"
 
 # Make sure the directories exist
-mkdir -p $install_path/
-mkdir -p $install_path/cows/
-mkdir -p $bin_path/
+mkdir -p "$install_path/"
+mkdir -p "$install_path/cows/"
+mkdir -p "$bin_path/"
 
 # Copy the cows and the main script to the install path.
-cp ./cows/*.cow $install_path/cows/
-cp ./pokemonsay.sh $install_path/
-cp ./pokemonthink.sh $install_path/
+cp ./cows/*.cow "$install_path/cows/"
+cp ./pokemonsay.sh "$install_path/"
+cp ./pokemonthink.sh "$install_path/"
 
 # Create the pokemonsay script in the home bin directory.
-cat > $bin_path/$pokemonsay_bin <<- EOF
+cat > "$bin_path/$pokemonsay_bin" <<- EOF
 	#!/bin/sh
 
 	# This script changes to the pokemonsay installation directory,
 	# runs the main script for running the pokemonsay, and changes
 	# back to the previous directory.
 
-	cd $install_path/
-	./pokemonsay.sh \$@
+	cd "$install_path/"
+	./pokemonsay.sh "\$@"
 	cd - >/dev/null
 EOF
 
 # Create the pokemonthink script in the home bin directory.
-cat > $bin_path/$pokemonthink_bin <<- EOF
+cat > "$bin_path/$pokemonthink_bin" <<- EOF
 	#!/bin/sh
 
 	# This script changes to the pokemonsay installation directory,
 	# runs the main script for running the pokemonthink, and changes
 	# back to the previous directory.
 
-	cd $install_path/
-	./pokemonthink.sh \$@
+	cd "$install_path/"
+	./pokemonthink.sh "\$@"
 	cd - >/dev/null
 EOF
 
 # Create uninstall script in the install directory
-cat > $install_path/uninstall.sh <<- EOF
+cat > "$install_path/uninstall.sh" <<- EOF
 	#!/bin/sh
 
 	#
