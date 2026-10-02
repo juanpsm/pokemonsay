@@ -4,18 +4,20 @@ usage() {
 	echo
 	echo "  Description: Pokemonsay makes a pokémon say something to you."
 	echo
-	echo "  Usage: $(basename $0) [-p POKEMON_NAME] [-f COW_FILE] [-w COLUMN] [-l] [-n] [-t] [-h] [MESSAGE]"
+	echo "  Usage: $(basename $0) [-p POKEMON_NAME] [-f COW_FILE] [-W COLUMN] [-l] [-n] [-N] [-t] [-h] [MESSAGE]"
 	echo
 	echo "  Options:"
 	echo "    -p, --pokemon POKEMON_NAME"
 	echo "      Choose what pokemon will be used by its name."
 	echo "    -f, --file COW_FILE"
 	echo "      Specify which .cow file should be used."
-	echo "    -w, --word-wrap COLUMN"
+	echo "    -W, --word-wrap COLUMN"
 	echo "      Specify roughly where messages should be wrapped."
+	echo "    -n, --no-wrap"
+	echo "      Do not wrap the messages."
 	echo "    -l, --list"
 	echo "      List all the pokémon available."
-	echo "    -n, --no-name"
+	echo "    -N, --no-name"
 	echo "      Do not tell the pokémon name."
 	echo "    -t, --think"
 	echo "      Make the pokémon think the message, instead of saying it."
@@ -27,7 +29,17 @@ usage() {
 }
 
 # Where the pokemon are.
-pokemon_path="$(pwd)/cows"
+# Resolve the real script directory, following symlinks (portable: no readlink -f).
+script="$0"
+while [ -L "$script" ]; do
+	link="$(readlink "$script")"
+	case "$link" in
+		/*) script="$link" ;;
+		*) script="$(dirname "$script")/$link" ;;
+	esac
+done
+script_dir="$(cd "$(dirname "$script")" && pwd)"
+pokemon_path="$script_dir/cows"
 
 list_pokemon() {
 	echo "Pokémon available in '$pokemon_path/':"
@@ -36,8 +48,8 @@ list_pokemon() {
 	echo "$all_pokemon" | while read pokemon; do
 		pokemon="${pokemon##*/}"
 		pokemon="${pokemon%.cow}"
-		echo "$pokemon"
-	done
+		printf "%-8s\n" "${pokemon}"
+	done | column -x
 	exit 0
 }
 
@@ -62,18 +74,22 @@ case $key in
 		COW_FILE="${1#*=}"
 		shift
 		;;
-	-w|--word-wrap)
+	-W|--word-wrap)
 		WORD_WRAP="$2"
 		shift; shift
 		;;
-	-w=*|--word-wrap=*)
+	-W=*|--word-wrap=*)
 		WORD_WRAP="${1#*=}"
+		shift
+		;;
+	-n|--no-wrap)
+		DISABLE_WRAP="YES"
 		shift
 		;;
 	-l|--list)
 		list_pokemon
 		;;
-	-n|--no-name)
+	-N|--no-name)
 		DISPLAY_NAME="NO"
 		shift
 		;;
@@ -101,9 +117,19 @@ case $key in
 esac
 done
 
-# Define where to wrap the message.
-if [ -n "$WORD_WRAP" ]; then
+# Disable wrapping if the option is set, otherwise
+# define where to wrap the message.
+if [ "${DISABLE_WRAP:-}" = "YES" ]; then
+	word_wrap="-n"
+elif [ -n "$WORD_WRAP" ]; then
 	word_wrap="-W $WORD_WRAP"
+fi
+
+# Support MacOS 
+if [ "$(uname)" = 'Darwin' ]; then
+  SHUF=gshuf
+else
+  SHUF=shuf
 fi
 
 # Define which pokemon should be displayed.
@@ -112,7 +138,7 @@ if [ -n "$POKEMON_NAME" ]; then
 elif [ -n "$COW_FILE" ]; then
 	pokemon_cow="$COW_FILE"
 else
-	pokemon_cow="$(find "$pokemon_path" -name "*.cow" | shuf -n1)"
+	pokemon_cow="$(find "$pokemon_path" -name "*.cow" | $SHUF -n1)"
 fi
 
 # Get the pokemon name.
@@ -121,9 +147,15 @@ pokemon_name="${filename%.*}"
 
 # Call cowsay or cowthink.
 if [ -n "$THINK" ]; then
-	cowthink -f "$pokemon_cow" $word_wrap $MESSAGE
+	cow_cmd=cowthink
 else
-	cowsay -f "$pokemon_cow" $word_wrap $MESSAGE
+	cow_cmd=cowsay
+fi
+# cowsay -n only reads the message from stdin.
+if [ "$word_wrap" = "-n" ] && [ -n "$MESSAGE" ]; then
+	echo "$MESSAGE" | $cow_cmd -f "$pokemon_cow" -n
+else
+	$cow_cmd -f "$pokemon_cow" $word_wrap $MESSAGE
 fi
 
 # Write the pokemon name, unless requested otherwise.
